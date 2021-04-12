@@ -1,0 +1,1386 @@
+openapi: 3.0.0
+servers:
+  - url: 'https://api.claps.ai/v1'
+info:
+  contact:
+    name: dev@claps.ai
+    url: 'https://docs.api.claps.ai/'
+  description: Interact with Claps API
+  license:
+    name: Creative Commons Attribution 3.0
+    url: 'http://creativecommons.org/licenses/by/3.0/'
+  termsOfService: 'https://claps.ai/legal/'
+  title: Claps API
+  version: v3
+  x-logo:
+    url: 'https://avatars.githubusercontent.com/u/77606001?s=200&v=4'
+  x-preferred: true
+  x-providerName: api.claps.ai
+tags:
+  - name: health-check
+  - name: tribes
+  - name: notifications
+  - name: user
+  - name: videos
+paths:
+  /health-check:
+    get:
+      description: Health check end point
+      operationId: Health Check
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+      tags:
+        - health-check
+
+  /notifications/${NotificationId}:
+    get:
+      security:
+        - DeviceId: []
+
+      description: Mark as read a notification
+      operationId: Mark a Notification as Read
+      parameters:
+        - description: Unique Notification ID
+          in: path
+          name: NotificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of notification
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Invalid message format of missing 'NotificationID'
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Notification not found
+
+      tags:
+        - notifications
+
+  /notifications:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: List pending user notifications
+      operationId: Get Pending Notifications
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsListResponse'
+          description: Successful response
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Authentication required
+
+      tags:
+        - notifications
+
+  /user/profile/{UserId}:
+    get:
+      description: Get public profile for a given user, by their UserId
+      operationId: Get User Profile by ID
+      parameters:
+        - description: Unique User ID
+          in: path
+          name: UserId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponsePublicProfile'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+
+      tags:
+        - user
+
+  /user/profile/nick/{Nick}:
+    get:
+      description: Get public profile for a given user, by their UserId
+      operationId: Get User Profile by Nick
+      parameters:
+        - description: Unique User Nick
+          in: path
+          name: Nick
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponsePublicProfile'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+
+      tags:
+        - user
+
+  /user/profile:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Update user public profile
+      operationId: Update User Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestProfile'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Some error was occurred. It can't updated your profile
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Invalid request
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: New nick already was chosen by other user
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Some internal error was occurred
+      tags:
+        - user
+
+  /user/profile/photo:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Change user profile photo. The process has two steps:
+
+        1. Call this end-point
+        2. This end-point returns an upload url. You must use then to upload the new imagen to them.
+      operationId: Update User Photo
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResourceResponse'
+          description: Successful response
+      tags:
+        - user
+
+  /user/followers/{UserId}:
+    get:
+      description: Get User Followers
+      operationId: Get User Followers
+      parameters:
+        - description: Unique User Id
+          in: path
+          name: UserId
+          required: true
+          schema:
+            type: string
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FollowerResponse'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - user
+
+  /user/follow/{UserId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Follow an User
+      operationId: Follow an User
+      parameters:
+        - description: Unique User ID
+          in: path
+          name: UserId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You already follow this user
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User doesn't exits
+      tags:
+        - user
+
+  /user/unfollow/{UserId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: UnFollow an User
+      operationId: UnFollow an User
+      parameters:
+        - description: Unique User ID
+          in: path
+          name: UserId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You don't follow this user
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User doesn't exits
+
+      tags:
+        - user
+
+  /tribes/videos/{TribeId}:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Get videos from a Tribe
+      operationId: Get Tribe videos
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TribeVideosResponse'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe not found or you can't access
+      tags:
+        - tribes
+
+  /tribes/create:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Create a new tribe
+      operationId: Create a New Tribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TribeCreatePublicInfoRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TribeCreateResponse'
+          description: Successful response
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Already exits a tribe with this name
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidFormResponseMessage'
+          description: Successful response
+      tags:
+        - tribes
+
+  /tribes/public-photo/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Change Tribe profile photo. The process has two steps:
+
+        1. Call this end-point
+        2. This end-point returns an upload url. You must use then to upload the new imagen to them.
+      operationId: New Tribe Photo
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResourceResponse'
+          description: Successful response
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResourceResponse'
+          description: Only tribe owner can change the tribe photo
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResourceResponse'
+          description: Tribe not found
+      tags:
+        - tribes
+
+  /tribes/join/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Join into a tribe
+      operationId: Join into Tribe
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe is private, must must request access to them
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe not found
+      tags:
+        - tribes
+
+  /tribes/leave/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Leave a tribe
+      operationId: Leave a Tribe
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You're not part of the tribe or they doesn't exits
+      tags:
+        - tribes
+
+  /tribes/public-info/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Update tribe public information by the owner
+      operationId: Update Public Info
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TribeUpdatePublicInfoRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Already exits a tribe with this name
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidFormResponseMessage'
+          description: Invalid request
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidFormResponseMessage'
+          description: You're not the owner of the tribe or tribe doesn't exits
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidFormResponseMessage'
+          description: Tribe not found
+      tags:
+        - tribes
+
+    get:
+      description: Get public information from a Tribe
+      operationId: Get Public Tribe Info
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TribeUpdatePublicInfoResponse'
+          description: Successful response
+      tags:
+        - tribes
+
+  /tribes/request-access/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Request access to a private Tribe
+      operationId: Request Access to a Tribe
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe is public, it's not necessary to request access
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Already belong to the tribe
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe doesn't exits
+      tags:
+        - tribes
+
+  /tribes/invitations/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Get pending invitations for a tribe
+      operationId: Get Pending Invitations
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TribeAccessResponse'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of the tribe or tribe doesn't exits
+      tags:
+        - tribes
+
+  /tribes/accept-invitation/{InvitationId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Accept pending invitation to the tribe by the owner.
+      operationId: Accept Request
+      parameters:
+        - description: Unique Invitation ID
+          in: path
+          name: InvitationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe or invitation not found
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of the tribe or tribe doesn't exits
+      tags:
+        - tribes
+
+  /tribes/reject-invitation/{InvitationId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Reject a pending invitation to the tribe by the owner.
+      operationId: Reject Request
+      parameters:
+        - description: Unique Invitation ID
+          in: path
+          name: InvitationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe or invitation not found
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of the tribe or tribe doesn't exits
+      tags:
+        - tribes
+
+  /tribes/members/{TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Get tribe members
+      operationId: Get Tribe Members
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TribeMemberResponse'
+          description: Successful response
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You can't access to tribe info because you're not member
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe not exists
+      tags:
+        - tribes
+
+  /tribes/share/${VideoId}/${TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Share a video to a tribe. You must belong to the tribe to share.
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: Share to Tribe
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Ok
+        '209':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Already shared this video to this tribe
+        '203':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You are note the owner of the video you want to share
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found or Tribe not exits or you have not access to them
+      tags:
+        - tribes
+
+  /videos/suggestion:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: returns 5 public videos as suggestions for an user
+      operationId: Get Suggestions
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideosSuggestionResponse'
+          description: Successful response
+      tags:
+        - videos
+
+  /videos:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: returns user videos in pages. 20 per page.
+      operationId: Get Suggestions
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideosUserResponse'
+          description: Successful response
+      tags:
+        - videos
+
+  /videos/upload:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Upload an new user video. The process has two steps:
+
+        1. Set the video properties: title, tags, etc. (calling this end-point)
+        2. This end-point returns an upload url. You must use then to upload the video to them.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VideosUploadRequest'
+      operationId: Upload Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UploadResourceResponse'
+          description: Successful response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Invalid request
+      tags:
+        - videos
+
+  /videos/clap/${VideoId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Claps for a video
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: Clap Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Ok
+        '209':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You already clapped this video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+      tags:
+        - videos
+
+  /videos/view/${VideoId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Mark that a video was view for an user
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: View Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Ok
+        '209':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You already marked as viewed this video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+      tags:
+        - videos
+
+  /videos/stats/${VideoId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Get statistics for a video
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: View Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideosStatsResponse'
+          description: Video stats for the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+      tags:
+        - videos
+
+components:
+  securitySchemes:
+    DeviceId:
+      type: apiKey
+      in: header
+      name: Device-Id
+      description: |
+        Each API Call that should be authenticated must include the HTTP header *Device-Id* with the **unique** device ID number.
+
+        There's no login required. Login is implicit.
+
+  schemas:
+
+    ResponseMessage:
+      type: object
+      properties:
+        message:
+          description: text description for the message
+          type: string
+
+    InvalidFormResponseMessage:
+      type: object
+      properties:
+        message:
+          description: text description for the message
+          type: string
+        errors:
+          description: |
+            A list of objects where keys are the field with the error and the
+            value is a message describing the error.
+          type: array
+          items:
+            type: string
+
+    UserResponsePublicProfile:
+      properties:
+        total_claps_in_videos:
+          description: Total Claps got in their videos
+          type: integer
+        nick:
+          description: unique user nick
+          type: string
+        name:
+          description: user name
+          type: string
+        sur_name:
+          description: user surname
+          type: string
+        bio:
+          description: user biography
+          type: string
+        id:
+          description: unique user ID
+          type: string
+        photo:
+          description: url to user profile photo
+          type: string
+      type: object
+
+    UserRequestProfile:
+      properties:
+        nick:
+          description: change user nick. Only could be changed if the new nick was not already chosen by other user.
+          type: string
+        name:
+          description: user name
+          type: string
+        sur_name:
+          description: user surname
+          type: string
+        bio:
+          description: user biography
+          type: string
+      type: object
+
+    NotificationsMarkAsReadRequest:
+      properties:
+        notification_id:
+          description: Notification ID string
+          type: string
+      type: object
+
+    NotificationsListResponse:
+      properties:
+        notification_id:
+          description: Notification ID string
+          type: string
+        notification_type:
+          description: |
+            Type of notification. Currenty these types of notifications are supported:
+
+            - 1: An user was accepted into a tribe. This message is received user that was accepted into the tribe.
+            - 2: An user requested access to a tribe. This message is received by a tribe owner.
+            - 3: New tribe member. This message was received to all tribe members.
+            - 4: New video in a tribe. This message was received to all tribe members.
+            - 5: New user video. This message was received to all user followers.
+          type: int
+      type: object
+
+    UploadResourceResponse:
+      properties:
+        upload_url:
+          description: URL where upload the image
+          type: string
+        id:
+          description: Resource unique Id
+          type: string
+      type: object
+
+    FollowerResponse:
+      properties:
+        user_id:
+          description: User Id whom is followed
+          type: string
+        follower_id:
+          description: User Id of user who is the follower
+          type: string
+        follower_name:
+          description: User full Name of user who is the follower
+          type: string
+        follower_photo:
+          description: User Photo URL of user who is the follower
+          type: string
+        created:
+          description: |
+            When follower starts following the user. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    TribeUpdatePublicInfoResponse:
+      properties:
+        id:
+          description: Tribe ID
+          type: string
+        name:
+          description: Tribe name. The name is unique
+          type: string
+        owner_id:
+          description: User ID of the tribe owner
+          type: string
+        owner_name:
+          description: User Name of the tribe owner
+          type: string
+        tags:
+          description: List of tags for this tribe set by the owner
+          type: array
+          items:
+            - type: string
+        description:
+          description: Tribe description
+          type: string
+        photo:
+          description: URL of the Tribe photo
+          type: string
+        is_public:
+          description: |
+            Describes if Tribe will be public or private:
+
+            - *true*: Tribe will be public
+            - *false*: Tribe will be private
+          type: boolean
+          default: false
+        created:
+          description: |
+            Tribe creation date. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    TribeUpdatePublicInfoRequest:
+      properties:
+        name:
+          description: Tribe name. MUST be unique
+          type: string
+          required: false
+        description:
+          description: Tribe description
+          type: string
+          required: false
+        is_public:
+          description: |
+            Describes if Tribe will be public or private:
+
+            - *true*: Tribe will be public
+            - *false*: Tribe will be private
+          type: boolean
+          default: false
+          required: false
+      type: object
+
+    TribeCreatePublicInfoRequest:
+      properties:
+        name:
+          description: Tribe name. MUST be unique
+          type: string
+          required: true
+        description:
+          description: Tribe description
+          type: string
+          required: true
+        is_public:
+          description: |
+            Describes if Tribe will be public or private:
+
+            - *true*: Tribe will be public
+            - *false*: Tribe will be private
+          type: boolean
+          default: false
+      type: object
+
+    TribeAccessResponse:
+      properties:
+        user_nick:
+          description: User nick that requests access to the tribe
+          type: string
+        user_id:
+          description: User Id that requests access to the tribe
+          type: string
+        user_name:
+          description: User full name that requests access to the tribe
+          type: string
+        user_photo:
+          description: User photo URL that requests access to the tribe
+          type: string
+        tribe_id:
+          description: Tribe Id which user requests access
+          type: string
+        tribe_name:
+          description: Tribe name which user requests access
+          type: string
+        tribe_photo:
+          description: Tribe photo URL which user requests access
+          type: string
+        created:
+          description: |
+            When follower starts following the user. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    TribeMemberResponse:
+      properties:
+        user_id:
+          description: User Id that belongs to the Tribe
+          type: string
+        user_name:
+          description: User name that belongs to the Tribe
+          type: string
+        user_photo:
+          description: User photo URL that belongs to the Tribe
+          type: string
+        tribe_id:
+          description: Tribe Id which user requests access
+          type: string
+        created:
+          description: |
+            When follower starts following the user. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    TribeVideosResponse:
+      properties:
+        title:
+          description: Video title
+          type: string
+        url:
+          description: URL to download the video
+          type: string
+        user_id:
+          description: User ID that was uploaded the video
+          type: string
+        user_photo:
+          description: User Photo URL that was uploaded the video
+          type: string
+        user_name:
+          description: User name that was uploaded the video
+          type: string
+        uploaded:
+          description: |
+            Date when the user shared the video with the tribe. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    TribeCreateResponse:
+      properties:
+        id:
+          description: Unique ID for the just created tribe
+          type: string
+      type: object
+
+    VideosSuggestionResponse:
+      properties:
+        title:
+          description: Video title
+          type: string
+        url:
+          description: URL to download the video
+          type: string
+        user_id:
+          description: User ID that was uploaded the video
+          type: string
+        user_photo:
+          description: User Photo URL that was uploaded the video
+          type: string
+        user_name:
+          description: User name that was uploaded the video
+          type: string
+        uploaded:
+          description: |
+            Date when the video was uploaded. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    VideosUserResponse:
+      properties:
+        id:
+          description: Unique video ID
+          type: string
+        title:
+          description: Video title
+          type: string
+        tags:
+          description: List of user tags for the video
+          type: array
+          items:
+            - type: string
+        claps:
+          description: Claps that the video had
+          type: integer
+        views:
+          description: Views that the video had
+          type: string
+        url:
+          description: URL to access the video
+          type: string
+        uploaded:
+          description: |
+            Date when the video was uploaded. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    VideosUploadRequest:
+      properties:
+        title:
+          description: Title for the video
+          type: string
+        tags:
+          description: List of user tags for the video
+          type: array
+          items:
+            - type: string
+      type: object
+
+    VideosStatsResponse:
+      properties:
+        claps:
+          description: Claps that the video had
+          type: integer
+        views:
+          description: Views that the video had
+          type: string
+        shared_to_tribes:
+          description: Times that video was shared to a tribe
+          type: string
+        auto_tags:
+          description: List of Claps AI detected tags for the video
+          type: array
+          items:
+            - type: string
+        tags:
+          description: List of user tags for the video
+          type: array
+          items:
+            - type: string
+        sentiment:
+          description: Claps AI detected sentiment
+          type: string
+      type: object
