@@ -987,7 +987,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: View Video
+      operationId: Video Stats
       responses:
         '200':
           content:
