@@ -938,7 +938,7 @@ paths:
     post:
       security:
         - DeviceId: [ ]
-      description: Mark that a video was view for an user
+      description: Mark that a video as viewed for an user
       parameters:
         - description: Unique Video ID
           in: path
@@ -946,7 +946,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: View Video
+      operationId: Mark Video Viewed
       responses:
         '200':
           content:
