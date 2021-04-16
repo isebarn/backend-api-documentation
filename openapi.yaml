@@ -84,7 +84,17 @@ paths:
     get:
       security:
         - DeviceId: [ ]
-      description: List pending user notifications
+      description: |
+            List pending notifications
+
+            Type of notification. Currently these types of notifications are supported:
+
+            - 1: An user was accepted into a tribe. This message is received user that was accepted into the tribe.
+            - 2: An user requested access to a tribe. This message is received by a tribe owner.
+            - 3: New tribe member. This message was received to all tribe members.
+            - 4: New video in a tribe. This message was received to all tribe members.
+            - 5: New user video. This message was received to all user followers.
+
       operationId: Get Pending Notifications
       responses:
         '200':
@@ -1044,7 +1054,7 @@ components:
 
     UserResponsePublicProfile:
       properties:
-        total_claps_in_videos:
+        claps:
           description: Total Claps got in their videos
           type: integer
         nick:
@@ -1178,8 +1188,12 @@ components:
 
     TribeUpdatePublicInfoRequest:
       properties:
+        nick:
+          description: Tribe nick. MUST be unique
+          type: string
+          required: false
         name:
-          description: Tribe name. MUST be unique
+          description: Tribe name
           type: string
           required: false
         description:
@@ -1199,6 +1213,10 @@ components:
 
     TribeCreatePublicInfoRequest:
       properties:
+        nick:
+          description: Tribe nick. MUST be unique
+          type: string
+          required: true
         name:
           description: Tribe name. MUST be unique
           type: string
@@ -1268,6 +1286,15 @@ components:
 
     TribeVideosResponse:
       properties:
+        id:
+          description: Video ID
+          type: string
+        claps:
+          description: total number of claps for this video
+          type: integer
+        views:
+          description: total number of claps for this video
+          type: integer
         title:
           description: Video title
           type: string
@@ -1298,6 +1325,9 @@ components:
 
     VideosSuggestionResponse:
       properties:
+        id:
+          description: Video Id
+          type: string
         title:
           description: Video title
           type: string
@@ -1307,8 +1337,17 @@ components:
         user_id:
           description: User ID that was uploaded the video
           type: string
+        user_nick:
+          description: User Nick that was uploaded the video
+          type: string
         user_photo:
           description: User Photo URL that was uploaded the video
+          type: string
+        claps:
+          description: Number of claps for this video
+          type: string
+        views:
+          description: Number of total views for this video
           type: string
         user_name:
           description: User name that was uploaded the video
