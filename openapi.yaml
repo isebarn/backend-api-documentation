@@ -272,8 +272,8 @@ paths:
 
   /user/following/{UserId}:
     get:
-      description: Get User Following
-      operationId: Get the users that an User is following
+      description: Get the users that an User is following
+      operationId: Get User Following
       parameters:
         - description: Unique User Id
           in: path
