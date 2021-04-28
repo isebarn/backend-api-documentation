@@ -8,7 +8,7 @@ info:
   description: Interact with Claps API
   license:
     name: Creative Commons Attribution 3.0
-    url: 'http://creativecommons.org/licenses/by/3.0/'
+    url: 'https://creativecommons.org/licenses/by/3.0/'
   termsOfService: 'https://claps.ai/legal/'
   title: Claps API
   version: v3
@@ -222,7 +222,7 @@ paths:
         Change user profile photo. The process has two steps:
 
         1. Call this end-point
-        2. This end-point returns an upload url. You must use then to upload the new imagen to them.
+        2. This end-point returns an upload url. You must use then to upload the new image to them.
       operationId: Update User Photo
       responses:
         '200':
@@ -377,42 +377,6 @@ paths:
       tags:
         - user
 
-  /tribes/videos/{TribeId}:
-    get:
-      security:
-        - DeviceId: [ ]
-      description: Get videos from a Tribe
-      operationId: Get Tribe videos
-      parameters:
-        - description: Unique Tribe ID
-          in: path
-          name: TribeId
-          required: true
-          schema:
-            type: string
-        - description: Page number. Default is 0
-          in: query
-          name: page
-          required: false
-          schema:
-            type: integer
-            default: 0
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TribeVideosResponse'
-          description: Successful response
-        '204':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: Tribe not found or you can't access
-      tags:
-        - tribes
-
   /tribes/create:
     post:
       security:
@@ -454,7 +418,7 @@ paths:
         Change Tribe profile photo. The process has two steps:
 
         1. Call this end-point
-        2. This end-point returns an upload url. You must use then to upload the new imagen to them.
+        2. This end-point returns an upload url. You must use then to upload the new image to them.
       operationId: New Tribe Photo
       parameters:
         - description: Unique Tribe ID
@@ -805,61 +769,6 @@ paths:
       tags:
         - tribes
 
-  /tribes/share/${VideoId}/${TribeId}:
-    post:
-      security:
-        - DeviceId: [ ]
-      description: Share a video to a tribe. You must belong to the tribe to share.
-      parameters:
-        - description: Unique Tribe ID
-          in: path
-          name: TribeId
-          required: true
-          schema:
-            type: string
-        - description: Unique Video ID
-          in: path
-          name: VideoId
-          required: true
-          schema:
-            type: string
-      operationId: Share to Tribe
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
-          description: Ok
-        '209':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
-          description: Already shared this video to this tribe
-        '203':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
-          description: You are note the owner of the video you want to share
-        '204':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
-          description: Video not found or Tribe not exits or you have not access to them
-      tags:
-        - tribes
-
   /videos/suggestion:
     get:
       security:
@@ -909,10 +818,19 @@ paths:
       security:
         - DeviceId: [ ]
       description: |
-        Upload an new user video. The process has two steps:
+        Upload an new video.
+
+        Video will be shared in one of these 2 places:
+        - User Feed Video
+        - Into a tribe
+
+        A user only can upload a video into a tribe if user belong to them.
+
+        The process to upload a video has two steps:
 
         1. Set the video properties: title, tags, etc. (calling this end-point)
         2. This end-point returns an upload url. You must use then to upload the video to them.
+
       requestBody:
         content:
           application/json:
@@ -935,7 +853,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ResponseMessage'
-          description: Invalid request
+          description: Invalid request or missing parameters
+        '403':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You can't share a video in this tribe because you don't belong them.
       tags:
         - videos
 
@@ -1054,6 +980,143 @@ paths:
       tags:
         - videos
 
+  /videos/tribe/${TribeId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Get Videos from a tribe. If user doesn't belongs to an error will be raised.
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      operationId: Get Tribe Videos
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseVideos'
+          description: Video stats for the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe not found or you can't access
+      tags:
+        - videos
+
+  /videos/user/${UserID}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Get Videos from the main feed of a User
+      parameters:
+        - description: Unique User ID
+          in: path
+          name: UserID
+          required: true
+          schema:
+            type: string
+      operationId: Get other User Videos
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseVideos'
+          description: Video stats for the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - videos
+
+  /videos/user/me:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Get Videos videos. This end-point return all videos an user was uploaded
+      operationId: Get User Videos
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseVideos'
+          description: Video stats for the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - videos
+
+  /videos/delete/${VideoId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: |
+        Deletes an user video. User must be the owner of the video.
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: Delete Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Ok
+        '203':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+      tags:
+        - videos
+
 components:
   securitySchemes:
     DeviceId:
@@ -1129,13 +1192,6 @@ components:
           type: string
       type: object
 
-    NotificationsMarkAsReadRequest:
-      properties:
-        notification_id:
-          description: Notification ID string
-          type: string
-      type: object
-
     NotificationsListResponse:
       properties:
         notification_id:
@@ -1143,7 +1199,7 @@ components:
           type: string
         notification_type:
           description: |
-            Type of notification. Currenty these types of notifications are supported:
+            Type of notification. Currently these types of notifications are supported:
 
             - 1: An user was accepted into a tribe. This message is received user that was accepted into the tribe.
             - 2: An user requested access to a tribe. This message is received by a tribe owner.
@@ -1159,7 +1215,7 @@ components:
           description: URL where upload the image
           type: string
         id:
-          description: Resource unique Id
+          description: Video ID
           type: string
       type: object
 
@@ -1320,7 +1376,7 @@ components:
           type: string
       type: object
 
-    TribeVideosResponse:
+    ResponseVideos:
       properties:
         id:
           description: Video ID
@@ -1341,10 +1397,16 @@ components:
           description: User ID that was uploaded the video
           type: string
         user_photo:
-          description: User Photo URL that was uploaded the video
+          description: User Photo URL who was uploaded the video
           type: string
         user_name:
           description: User name that was uploaded the video
+          type: string
+        tribe_nick:
+          description: Unique tribe nick name
+          type: string
+        tribe_photo:
+          description: Tribe Photo URL were was uploaded the video
           type: string
         uploaded:
           description: |
@@ -1426,6 +1488,20 @@ components:
       properties:
         title:
           description: Title for the video
+          type: string
+          required: true
+        share_to:
+          description: |
+            Where to share this video. Two choices are available:
+            - 'user' -> Share the video into User feed
+            - 'tribe' -> Share the video into a tribe
+          type: string
+          required: true
+        share_tribe:
+          description: |
+            If video will be shared into a tribe, this value will be the Tribe ID where user want to share the video.
+
+            To share a video into a tribe, user must belong to the tribe.
           type: string
         tags:
           description: List of user tags for the video
