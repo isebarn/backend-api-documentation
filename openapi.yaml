@@ -8,7 +8,7 @@ info:
   description: |
     Interact with Claps API.
 
-    Spec can be found at: https://api.claps.ai/doc/spec/json
+    Spec can be found at: https://docs.api.claps.ai/openapi.yaml
 
   license:
     name: Creative Commons Attribution 3.0
