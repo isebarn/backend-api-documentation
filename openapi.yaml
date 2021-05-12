@@ -37,7 +37,7 @@ paths:
       tags:
         - health-check
 
-  /notifications/${NotificationId}:
+  /notifications/mark-as-read/${NotificationId}:
     get:
       security:
         - DeviceId: []
@@ -64,18 +64,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResponseMessage'
           description: You're not the owner of notification
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: Invalid message format of missing 'NotificationID'
         '204':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseMessage'
           description: Notification not found
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Invalid message format of missing 'NotificationID'
 
       tags:
         - notifications
@@ -85,31 +85,145 @@ paths:
       security:
         - DeviceId: [ ]
       description: |
-            List pending notifications
+            # List pending notifications summary.
 
-            Type of notification. Currently these types of notifications are supported:
+            Each notification returns a 'type of notification' (as an integer) depending of the type you must get notification details at the custom end-point:
 
-            - 1: An user was accepted into a tribe. This message is received user that was accepted into the tribe.
-            - 2: An user requested access to a tribe. This message is received by a tribe owner.
-            - 3: New tribe member. This message was received to all tribe members.
-            - 4: New video in a tribe. This message was received to all tribe members.
-            - 5: New user video. This message was received to all user followers.
+            ## Notification types and end-points of details
 
-      operationId: Get Pending Notifications
+            ### Type: 1
+
+            - Description: An user was accepted into a tribe. This message is received user that was accepted into the tribe.
+            - Detailed end-point: /notifications/new-accepted-into-tribe
+
+            ### Type: 2
+
+            - Description: An user requested access to a tribe. This message is received by a tribe owner.
+            - Detailed end-point: /notifications/new-access-request-to-tribe
+
+            ### Type: 3
+
+            - Description: New tribe member. This message was received to all tribe members.
+            - Detailed end-point: /notifications/new-tribe-video
+
+            ### Type: 4
+
+            - Description: New video in a tribe. This message was received to all tribe members.
+            - Detailed end-point: /notifications/new-tribe-video
+
+            ### Type: 5
+
+            - Description: New user video. This message was received to all user followers.
+            - Detailed end-point: /notifications/new-user-video
+
+      operationId: Pending user Notifications
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationsListResponse'
+                $ref: '#/components/schemas/NotificationsSummaryResponse'
           description: Successful response
-        '403':
+        '203':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseMessage'
           description: Authentication required
 
+      tags:
+        - notifications
+
+  /notifications/new-accepted-into-tribe:
+    get:
+      security:
+        - DeviceId: [ ]
+      description:  User get this notification when is accepted into a new tribe
+      operationId: Accepted Users Into a Tribe
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationUserAcceptedResponse'
+          description: Successful response
+
+      tags:
+        - notifications
+
+  /notifications/new-access-request-to-tribe:
+    get:
+      security:
+        - DeviceId: [ ]
+      description:  Tribe owner receives this notification when a new user want to access to the tribe and sends a new request request to the tribe
+      operationId: New User Access Request
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationUserAccessRequestResponse'
+          description: Successful response
+      tags:
+        - notifications
+
+  /notifications/new-tribe-member:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: All tribe users receive this notification when a new member has become into the tribe
+      operationId: New Member in Tribe
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationNewMemberInTribeResponse'
+          description: Successful response
+      tags:
+        - notifications
+
+  /notifications/new-tribe-video:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: |
+        All tribe users receive this notification when a member shared a new video into the tribe.
+
+        This end-point returns a summary of all information to be displayed in the UI.
+
+        If you want to get the video you must call to end-point: /video/{VIDEO-ID}
+
+      operationId: New Tribe Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationNewVideoInTribeResponse'
+          description: Successful response
+      tags:
+        - notifications
+
+  /notifications/new-user-video:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: |
+        All user's followers receive this notification when a the user shared a new video into their personal feed.
+
+        This end-point returns a summary of all information to be displayed in the UI.
+
+        If you want to get the video you must call to end-point: /video/{VIDEO-ID}
+
+      operationId: New User Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationNewUserVideoResponse'
+          description: Successful response
       tags:
         - notifications
 
@@ -626,12 +740,12 @@ paths:
       tags:
         - tribes
 
-  /tribes/invitations/{TribeId}:
-    post:
+  /tribes/request-access-details/{TribeId}:
+    get:
       security:
         - DeviceId: [ ]
-      description: Get pending invitations for a tribe
-      operationId: Get Pending Invitations
+      description: Get pending access request for a tribe
+      operationId: Get Pending Access Request
       parameters:
         - description: Unique Tribe ID
           in: path
@@ -769,50 +883,6 @@ paths:
       tags:
         - tribes
 
-  /videos/suggestion:
-    get:
-      security:
-        - DeviceId: [ ]
-      description: returns 5 public videos as suggestions for an user
-      operationId: Get Suggestions
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideosSuggestionResponse'
-          description: Successful response
-      tags:
-        - videos
-
-  /videos:
-    get:
-      security:
-        - DeviceId: [ ]
-      description: returns user videos in pages. 20 per page.
-      operationId: Get Suggestions
-      parameters:
-        - description: Page number. Default is 0
-          in: query
-          name: page
-          required: false
-          schema:
-            type: integer
-            default: 0
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideosUserResponse'
-          description: Successful response
-      tags:
-        - videos
-
   /videos/upload:
     post:
       security:
@@ -846,6 +916,14 @@ paths:
                 items:
                   $ref: '#/components/schemas/UploadResourceResponse'
           description: Successful response
+        '203':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You can't share a video in this tribe because you don't belong them.
         '400':
           content:
             application/json:
@@ -854,14 +932,47 @@ paths:
                 items:
                   $ref: '#/components/schemas/ResponseMessage'
           description: Invalid request or missing parameters
-        '403':
+      tags:
+        - videos
+
+  /videos/{VideoId}:
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Get a temporal download URL from a Video Id.
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: Get Video
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideosGetVideoByIdResponse'
+          description: Successful response
+        '204':
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ResponseMessage'
-          description: You can't share a video in this tribe because you don't belong them.
+          description: Video not found
+        '203':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You have not permissions to get this video
       tags:
         - videos
 
@@ -980,6 +1091,24 @@ paths:
       tags:
         - videos
 
+  /videos/main-feed:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: returns 10 public videos as suggestions for an user
+      operationId: Get User Main Feed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideoFeed'
+          description: Successful response
+      tags:
+        - videos
+
   /videos/tribe/${TribeId}:
     post:
       security:
@@ -1001,7 +1130,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ResponseVideos'
+                  $ref: '#/components/schemas/VideoFeed'
           description: Video stats for the video
         '204':
           content:
@@ -1035,7 +1164,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ResponseVideos'
+                  $ref: '#/components/schemas/VideoFeed'
           description: Video stats for the video
         '204':
           content:
@@ -1062,7 +1191,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ResponseVideos'
+                  $ref: '#/components/schemas/VideoFeed'
           description: Video stats for the video
         '204':
           content:
@@ -1192,10 +1321,116 @@ components:
           type: string
       type: object
 
-    NotificationsListResponse:
+    NotificationUserAcceptedResponse:
       properties:
-        notification_id:
-          description: Notification ID string
+        tribe_id:
+          description: Tribe ID where was accepted
+          type: string
+        tribe_nick:
+          description: Tribe Nick where was accepted
+          type: string
+        tribe_photo:
+          description: Tribe Photo URL where was accepted
+          type: string
+
+    NotificationUserAccessRequestResponse:
+      properties:
+        user_id:
+          description: User ID that was requested access to the tribe
+          type: string
+        user_nick:
+          description: User Nick that was requested access to the tribe
+          type: string
+        user_photo:
+          description: User Photo URL that was requested access to the tribe
+          type: string
+        tribe_id:
+          description: Tribe ID where the user was requested access
+          type: string
+        tribe_nick:
+          description: Tribe Nick where the user was requested access
+          type: string
+        tribe_photo:
+          description: Tribe Photo where the user was requested access
+          type: string
+
+    NotificationNewMemberInTribeResponse:
+      properties:
+        user_id:
+          description: User ID that was requested access to the tribe
+          type: string
+        user_nick:
+          description: User Nick that was requested access to the tribe
+          type: string
+        user_photo:
+          description: User Photo URL that was requested access to the tribe
+          type: string
+        tribe_id:
+          description: Tribe ID where the user was requested access
+          type: string
+        tribe_nick:
+          description: Tribe Nick where the user was requested access
+          type: string
+        tribe_photo:
+          description: Tribe Photo where the user was requested access
+          type: string
+
+    NotificationNewVideoInTribeResponse:
+      properties:
+        uploaded_by_user_id:
+          description: User ID that was uploaded the video
+          type: string
+        uploaded_by_user_nick:
+          description: User Nick that was uploaded the video
+          type: string
+        uploaded_by_user_photo:
+          description: User Photo URL that was uploaded the video
+          type: string
+        uploaded_to_tribe_id:
+          description: Tribe ID where videos was uploaded
+          type: string
+        uploaded_to_tribe_nick:
+          description: Tribe Nick where videos was uploaded
+          type: string
+        uploaded_to_tribe_photo:
+          description: Tribe Photo where videos was uploaded
+          type: string
+        video_id:
+          description: Uploaded video ID
+          type: string
+        video_title:
+          description: Uploaded Video title
+          type: string
+
+    NotificationNewUserVideoResponse:
+      properties:
+        uploaded_by_user_id:
+          description: User ID that was uploaded the video
+          type: string
+        uploaded_by_user_nick:
+          description: User Nick that was uploaded the video
+          type: string
+        uploaded_by_user_photo:
+          description: User Photo URL that was uploaded the video
+          type: string
+        video_id:
+          description: Uploaded video ID
+          type: string
+        video_title:
+          description: Uploaded Video title
+          type: string
+
+    NotificationsSummaryResponse:
+      properties:
+        id:
+          description: Unique Notification ID
+          type: string
+        title:
+          description: Summary text for the notification
+          type: string
+        created:
+          description: |
+            When follower starts following the user. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
           type: string
         notification_type:
           description: |
@@ -1361,6 +1596,9 @@ components:
         user_id:
           description: User Id that belongs to the Tribe
           type: string
+        user_nick:
+          description: Unique user Nick of member
+          type: string
         user_name:
           description: User name that belongs to the Tribe
           type: string
@@ -1370,47 +1608,18 @@ components:
         tribe_id:
           description: Tribe Id which user requests access
           type: string
+        tribe_name:
+          description: Tribe name
+          type: string
+        tribe_nick:
+          description: Unique Tribe Nick
+          type: string
+        tribe_photo:
+          description: Tribe photo URL that belongs to the Tribe
+          type: string
         created:
           description: |
             When follower starts following the user. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
-          type: string
-      type: object
-
-    ResponseVideos:
-      properties:
-        id:
-          description: Video ID
-          type: string
-        claps:
-          description: total number of claps for this video
-          type: integer
-        views:
-          description: total number of claps for this video
-          type: integer
-        title:
-          description: Video title
-          type: string
-        url:
-          description: URL to download the video
-          type: string
-        user_id:
-          description: User ID that was uploaded the video
-          type: string
-        user_photo:
-          description: User Photo URL who was uploaded the video
-          type: string
-        user_name:
-          description: User name that was uploaded the video
-          type: string
-        tribe_nick:
-          description: Unique tribe nick name
-          type: string
-        tribe_photo:
-          description: Tribe Photo URL were was uploaded the video
-          type: string
-        uploaded:
-          description: |
-            Date when the user shared the video with the tribe. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
           type: string
       type: object
 
@@ -1421,7 +1630,7 @@ components:
           type: string
       type: object
 
-    VideosSuggestionResponse:
+    VideoFeed:
       properties:
         id:
           description: Video Id
@@ -1441,6 +1650,12 @@ components:
         user_photo:
           description: User Photo URL that was uploaded the video
           type: string
+        tribe_nick:
+          description: Unique Tribe ID
+          type: string
+        tribe_photo:
+          description: Tribe photo link
+          type: string
         claps:
           description: Number of claps for this video
           type: string
@@ -1449,34 +1664,6 @@ components:
           type: string
         user_name:
           description: User name that was uploaded the video
-          type: string
-        uploaded:
-          description: |
-            Date when the video was uploaded. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
-          type: string
-      type: object
-
-    VideosUserResponse:
-      properties:
-        id:
-          description: Unique video ID
-          type: string
-        title:
-          description: Video title
-          type: string
-        tags:
-          description: List of user tags for the video
-          type: array
-          items:
-            - type: string
-        claps:
-          description: Claps that the video had
-          type: integer
-        views:
-          description: Views that the video had
-          type: string
-        url:
-          description: URL to access the video
           type: string
         uploaded:
           description: |
@@ -1535,3 +1722,10 @@ components:
           description: Claps AI detected sentiment
           type: string
       type: object
+
+    VideosGetVideoByIdResponse:
+      type: object
+      properties:
+        video_url:
+          description: Temporal URL for download the video by using HTTP GET method.
+          type: string
