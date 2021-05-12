@@ -5,7 +5,11 @@ info:
   contact:
     name: dev@claps.ai
     url: 'https://docs.api.claps.ai/'
-  description: Interact with Claps API
+  description: |
+    Interact with Claps API.
+
+    Spec can be found at: https://api.claps.ai/doc/spec/json
+
   license:
     name: Creative Commons Attribution 3.0
     url: 'https://creativecommons.org/licenses/by/3.0/'
@@ -251,6 +255,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResponseMessage'
           description: User not found
+
+      tags:
+        - user
+
+  /user/me:
+    get:
+      description: Get user profile
+      operationId: Get User Me
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponsePublicProfile'
+          description: Successful response
 
       tags:
         - user
@@ -883,6 +902,24 @@ paths:
       tags:
         - tribes
 
+  /tribes/me:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Get tribes for a current user
+      operationId: Get Tribes
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserTribesResponse'
+          description: Successful response
+      tags:
+        - tribes
+
   /videos/upload:
     post:
       security:
@@ -1178,7 +1215,7 @@ paths:
         - videos
 
   /videos/user/me:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: |
@@ -1620,6 +1657,22 @@ components:
         created:
           description: |
             When follower starts following the user. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
+      type: object
+
+    UserTribesResponse:
+      properties:
+        tribe_id:
+          description: Tribe Id which user requests access
+          type: string
+        tribe_name:
+          description: Tribe name
+          type: string
+        tribe_nick:
+          description: Unique Tribe Nick
+          type: string
+        tribe_photo:
+          description: Tribe photo URL that belongs to the Tribe
           type: string
       type: object
 
