@@ -701,6 +701,47 @@ paths:
       tags:
         - tribes
 
+  /tribes/make-public/{TribeId}:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Make a private tribe public. Only owner can do this.
+      operationId: Make Public
+      parameters:
+        - description: Unique Tribe ID
+          in: path
+          name: TribeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe is already public. Nothing to do
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of the tribe
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Tribe not found
+      tags:
+        - tribes
+
   /tribes/leave/{TribeId}:
     get:
       security:
