@@ -1347,6 +1347,122 @@ paths:
       tags:
         - videos
 
+  /videos/bookmarks:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Get Video Bookmarks from a user
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      operationId: Get Video Bookmarks
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideosBookmarkResponse'
+          description: Video stats for the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - videos
+
+  /videos/bookmarks/add/${VideoId}:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Add a video to user bookmarks
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: Add Video to Bookmarks
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideoFeed'
+          description: Ok
+        '203':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You have not access to this video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+      tags:
+        - videos
+
+  /videos/bookmarks/delete/${BookmarkId}:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Delete a video from bookmarks
+      parameters:
+        - description: Unique Bookmark ID
+          in: path
+          name: BookmarkId
+          required: true
+          schema:
+            type: string
+      operationId: Delete a Bookmark
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideoFeed'
+          description: Ok
+        '203':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You're not the owner of this bookmark
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Bookmark not found
+      tags:
+        - videos
+
 
   /videos/user/${UserID}:
     get:
@@ -1915,6 +2031,32 @@ components:
           description: Claps AI detected sentiment
           type: string
       type: object
+
+    VideosBookmarkResponse:
+      type: object
+      properties:
+        id:
+          description: Bookmark Id
+          type: string
+        user_id:
+          description: User ID that was created the bookmark
+          type: string
+        user_nick:
+          description: User Nick that was created the bookmark
+          type: string
+        user_photo:
+          description: User Photo URL that was created the bookmark
+          type: string
+        video_id:
+          description: Unique Video ID
+          type: string
+        video_title:
+          description: Video title
+          type: string
+        created:
+          description: |
+            Date when the bookmark was created. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
+          type: string
 
     VideosGetVideoByIdResponse:
       type: object
