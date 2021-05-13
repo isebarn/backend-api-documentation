@@ -41,6 +41,22 @@ paths:
       tags:
         - health-check
 
+  /health-check-auth:
+    get:
+      security:
+        - DeviceId: []
+      description: Health check end point that requires authentication
+      operationId: Health Check Authenticated
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+      tags:
+        - health-check
+
   /notifications/mark-as-read/${NotificationId}:
     get:
       security:
@@ -120,6 +136,14 @@ paths:
             - Description: New user video. This message was received to all user followers.
             - Detailed end-point: /notifications/new-user-video
 
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
       operationId: Pending user Notifications
       responses:
         '200':
@@ -403,6 +427,36 @@ paths:
       tags:
         - user
 
+  /user/followers/me:
+    get:
+      description: Get Me User Followers
+      operationId: Get Me Followers
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FollowerResponse'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - user
+
   /user/following/{UserId}:
     get:
       description: Get the users that an User is following
@@ -439,8 +493,38 @@ paths:
       tags:
         - user
 
+  /user/following/me:
+    get:
+      description: Get who I'm following
+      operationId: Get Me User Following
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FollowerResponse'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - user
+
   /user/follow/{UserId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Follow an User
@@ -475,7 +559,7 @@ paths:
         - user
 
   /user/unfollow/{UserId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: UnFollow an User
@@ -583,7 +667,7 @@ paths:
         - tribes
 
   /tribes/join/{TribeId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Join into a tribe
@@ -618,7 +702,7 @@ paths:
         - tribes
 
   /tribes/leave/{TribeId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Leave a tribe
@@ -719,7 +803,7 @@ paths:
         - tribes
 
   /tribes/request-access/{TribeId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Request access to a private Tribe
@@ -789,7 +873,7 @@ paths:
         - tribes
 
   /tribes/accept-invitation/{InvitationId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Accept pending invitation to the tribe by the owner.
@@ -824,7 +908,7 @@ paths:
         - tribes
 
   /tribes/reject-invitation/{InvitationId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Reject a pending invitation to the tribe by the owner.
@@ -859,7 +943,7 @@ paths:
         - tribes
 
   /tribes/members/{TribeId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Get tribe members
@@ -907,6 +991,14 @@ paths:
       security:
         - DeviceId: [ ]
       description: Get tribes for a current user
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
       operationId: Get Tribes
       responses:
         '200':
@@ -973,7 +1065,7 @@ paths:
         - videos
 
   /videos/{VideoId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Get a temporal download URL from a Video Id.
@@ -1014,7 +1106,7 @@ paths:
         - videos
 
   /videos/clap/${VideoId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Claps for a video
@@ -1055,7 +1147,7 @@ paths:
         - videos
 
   /videos/view/${VideoId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Mark that a video as viewed for an user
@@ -1096,7 +1188,7 @@ paths:
         - videos
 
   /videos/stats/${VideoId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: Get statistics for a video
@@ -1147,7 +1239,7 @@ paths:
         - videos
 
   /videos/tribe/${TribeId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: |
@@ -1180,12 +1272,46 @@ paths:
       tags:
         - videos
 
-  /videos/user/${UserID}:
-    post:
+  /videos/me:
+    get:
       security:
         - DeviceId: [ ]
-      description: |
-        Get Videos from the main feed of a User
+      description: Get Videos that I'm was uploaded
+      parameters:
+        - description: Page number. Default is 0
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 0
+      operationId: Get Me Videos
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideoFeed'
+          description: Video stats for the video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+      tags:
+        - videos
+
+
+  /videos/user/${UserID}:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Get Videos from the main feed of a User
       parameters:
         - description: Unique User ID
           in: path
@@ -1214,35 +1340,8 @@ paths:
       tags:
         - videos
 
-  /videos/user/me:
-    get:
-      security:
-        - DeviceId: [ ]
-      description: |
-        Get Videos videos. This end-point return all videos an user was uploaded
-      operationId: Get User Videos
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideoFeed'
-          description: Video stats for the video
-        '204':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
-          description: User not found
-      tags:
-        - videos
-
   /videos/delete/${VideoId}:
-    post:
+    get:
       security:
         - DeviceId: [ ]
       description: |
