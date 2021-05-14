@@ -1967,10 +1967,10 @@ components:
           type: string
         claps:
           description: Number of claps for this video
-          type: string
+          type: integer
         views:
           description: Number of total views for this video
-          type: string
+          type: integer
         user_name:
           description: User name that was uploaded the video
           type: string
@@ -2013,7 +2013,7 @@ components:
           type: integer
         views:
           description: Views that the video had
-          type: string
+          type: integer
         shared_to_tribes:
           description: Times that video was shared to a tribe
           type: string
