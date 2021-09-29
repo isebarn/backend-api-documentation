@@ -1587,15 +1587,26 @@ components:
         sur_name:
           description: user surname
           type: string
+          nullable: true
         bio:
           description: user biography
           type: string
+          nullable: true
         id:
           description: unique user ID
           type: string
         photo:
           description: url to user profile photo
           type: string
+          nullable: true
+        following:
+          description: total people that a user follows
+          type: number
+          default: 0
+        followers:
+          description: total people that follow an user
+          type: number
+          default: 0
       type: object
 
     UserRequestProfile:
