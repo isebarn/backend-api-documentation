@@ -1,6 +1,6 @@
 openapi: 3.0.0
 servers:
-  - url: 'https://api.claps.ai/v1'
+  - url: 'https://staging.api.claps.ai/v1'
 info:
   contact:
     name: dev@claps.ai
@@ -2004,6 +2004,8 @@ components:
             - 'tribe' -> Share the video into a tribe
           type: string
           required: true
+          enum: ['user', 'tribe']
+
         share_tribe:
           description: |
             If video will be shared into a tribe, this value will be the Tribe ID where user want to share the video.
