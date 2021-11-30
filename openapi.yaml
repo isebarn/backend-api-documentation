@@ -1,6 +1,6 @@
 openapi: 3.0.0
 servers:
-  - url: 'https://staging.api.claps.ai/v1'
+  - url: 'https://api.claps.ai/v1'
 security:
   - apiKey: []
 info:
