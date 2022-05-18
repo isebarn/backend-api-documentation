@@ -1283,6 +1283,24 @@ paths:
       tags:
         - videos
 
+  /videos/personalized-feed:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: returns 10 public videos as suggestions for an user
+      operationId: Get Personalized Main Feed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideoFeed'
+          description: Successful response
+      tags:
+        - videos
+
   /videos/tribe/${TribeId}:
     get:
       security:
