@@ -1,6 +1,6 @@
 openapi: 3.0.0
 servers:
-  - url: 'https://api.claps.ai/v1'
+  - url: 'https://staging2.api.claps.ai/v1'
 security:
   - apiKey: []
 info:
@@ -21,7 +21,7 @@ info:
   x-logo:
     url: 'https://avatars.githubusercontent.com/u/77606001?s=200&v=4'
   x-preferred: true
-  x-providerName: api.claps.ai
+  x-providerName: staging2.api.claps.ai
 tags:
   - name: health-check
   - name: tribes
