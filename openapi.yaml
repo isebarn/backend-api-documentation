@@ -1231,6 +1231,58 @@ paths:
           description: Video not found
       tags:
         - videos
+    post:
+      security:
+        - DeviceId: [ ]
+      description: Mark a video viewed by a user with a score between 0 - 1
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      operationId: Mark Video Viewed with score
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserVideoSeenScore'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Ok
+        '209':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: You already marked as viewed this video
+        '204':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+        '400':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+          description: Invalid request or missing parameter
+      tags:
+        - videos
 
   /videos/stats/${VideoId}:
     get:
@@ -1596,6 +1648,14 @@ components:
           type: array
           items:
             type: string
+
+    UserVideoSeenScore:
+      properties:
+        seen_score:
+          description: user seen score. Value between 0 - 1
+          type: number
+      type: object
+
 
     UserResponsePublicProfile:
       properties:
