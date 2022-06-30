@@ -554,6 +554,42 @@ paths:
       tags:
         - user
 
+  /user/follow/{UserId}/followed:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Checks if you follow a user
+      operationId: CheckFollowUser
+      parameters:
+        - description: Unique User ID
+          in: path
+          name: UserId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowedResponse'
+          description: Returns if an user is followed or not
+        '209':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You cannot follow yourself
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User doesn't exits
+
+      tags:
+        - user
+
   /user/unfollow/{UserId}:
     get:
       security:
@@ -1086,25 +1122,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UploadResourceResponse'
+                $ref: '#/components/schemas/UploadResourceResponse'
           description: Successful response
         '203':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You can't share a video in this tribe because you don't belong them.
         '400':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Invalid request or missing parameters
       tags:
         - videos
@@ -1135,17 +1165,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
         '203':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You have not permissions to get this video
       tags:
         - videos
@@ -1168,26 +1194,43 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Ok
         '209':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You already clapped this video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
+      tags:
+        - videos
+
+  /videos/clap/${VideoId}/clapped:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Check if video is clapped by user
+      operationId: isVideoClappedByUser
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/isVideoClappedByUserResponse'
+          description: is video is clapped by user returns True. False otherwise.
       tags:
         - videos
 
@@ -1209,25 +1252,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Ok
         '209':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You already marked as viewed this video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
       tags:
         - videos
@@ -1253,33 +1290,25 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Ok
         '209':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You already marked as viewed this video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
         '400':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Invalid request or missing parameter
       tags:
         - videos
@@ -1302,17 +1331,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideosStatsResponse'
+                $ref: '#/components/schemas/VideosStatsResponse'
           description: Video stats for the video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
       tags:
         - videos
@@ -1380,9 +1405,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Tribe not found or you can't access
       tags:
         - videos
@@ -1414,9 +1437,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: User not found
       tags:
         - videos
@@ -1440,17 +1461,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideosBookmarkResponse'
+                $ref: '#/components/schemas/VideosBookmarkResponse'
           description: Video stats for the video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: User not found
       tags:
         - videos
@@ -1481,17 +1498,48 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You have not access to this video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Video not found
+      tags:
+        - videos
+
+  /videos/bookmarks/${VideoId}/bookmarked:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Checks if a video was bookmarked by user
+      operationId: CheckVideoIsBookmarked
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/isVideoBookmarkedByUserResponse'
+          description: Ok
+        '203':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: You have not access to this video
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
       tags:
         - videos
@@ -1522,17 +1570,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You're not the owner of this bookmark
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Bookmark not found
       tags:
         - videos
@@ -1564,9 +1608,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: User not found
       tags:
         - videos
@@ -1590,25 +1632,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Ok
         '203':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: You're not the owner of the video
         '204':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ResponseMessage'
+                $ref: '#/components/schemas/ResponseMessage'
           description: Video not found
       tags:
         - videos
@@ -1843,6 +1879,13 @@ components:
         id:
           description: Video ID
           type: string
+      type: object
+
+    FollowedResponse:
+      properties:
+        followed:
+          description: True if this user is followed. False otherwise
+          type: boolean
       type: object
 
     FollowerResponse:
@@ -2168,3 +2211,17 @@ components:
         video_url:
           description: Temporal URL for download the video by using HTTP GET method.
           type: string
+
+    isVideoClappedByUserResponse:
+      type: object
+      properties:
+        clapped:
+          description: is video is clapped by user returns True. False otherwise.
+          type: boolean
+
+    isVideoBookmarkedByUserResponse:
+      type: object
+      properties:
+        bookmarked:
+          description: is video is bookmarked by user returns True. False otherwise.
+          type: boolean
