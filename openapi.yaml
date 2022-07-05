@@ -1,6 +1,11 @@
 openapi: 3.0.0
 servers:
   - url: 'https://staging2.api.claps.ai/v1'
+    description: stagging end-point
+  - url: 'https://api.claps.ai/v1'
+    description: production end-point
+  - url: 'https://development.api.claps.ai/v1'
+    description: development end-point
 security:
   - apiKey: []
 info:
@@ -1139,7 +1144,7 @@ paths:
       tags:
         - videos
 
-  /videos/{VideoId}:
+  /videos/${VideoId}:
     get:
       security:
         - DeviceId: [ ]
@@ -1157,9 +1162,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideosGetVideoByIdResponse'
+                $ref: '#/components/schemas/VideoResponse'
           description: Successful response
         '204':
           content:
@@ -1231,6 +1234,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/isVideoClappedByUserResponse'
           description: is video is clapped by user returns True. False otherwise.
+      tags:
+        - videos
+
+  /videos/view/${VideoId}/seen:
+    get:
+      security:
+        - DeviceId: [ ]
+      description: Checks if a video was seen by user
+      operationId: CheckVideoIsBookmarked
+      parameters:
+        - description: Unique Video ID
+          in: path
+          name: VideoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/isVideoSeenByUserResponse'
+          description: Ok
       tags:
         - videos
 
@@ -1355,7 +1381,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Successful response
       tags:
         - videos
@@ -1373,7 +1399,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Successful response
       tags:
         - videos
@@ -1399,7 +1425,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Video stats for the video
         '204':
           content:
@@ -1431,7 +1457,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Video stats for the video
         '204':
           content:
@@ -1492,7 +1518,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Ok
         '203':
           content:
@@ -1564,7 +1590,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Ok
         '203':
           content:
@@ -1602,7 +1628,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VideoFeed'
+                  $ref: '#/components/schemas/VideoResponse'
           description: Video stats for the video
         '204':
           content:
@@ -2083,7 +2109,7 @@ components:
           type: string
       type: object
 
-    VideoFeed:
+    VideoResponse:
       properties:
         id:
           description: Video Id
@@ -2122,6 +2148,30 @@ components:
           description: |
             Date when the video was uploaded. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
           type: string
+        gsID:
+          description: gsID value as a lists of strings
+          type: array
+        user_company:
+          description: company name
+          type: string
+        user_is_verified:
+          description: true if user was verified. False otherwise.
+          type: boolean
+        user_role:
+          description: user role
+          type: string
+        user_clapped:
+          description: True if user already clapped this video. False otherwise
+          type: boolean
+        user_bookmarked:
+          description: True if user already bookmarked this video. False otherwise
+          type: boolean
+        user_seen:
+          description: True if user already seen this video. False otherwise
+          type: boolean
+        tags:
+          description: Video tags list as a list of strings.
+          type: array
       type: object
 
     VideosUploadRequest:
@@ -2205,23 +2255,23 @@ components:
             Date when the bookmark was created. Date format example: "Fri, 12 Mar 2021 13:27:47 GMT"
           type: string
 
-    VideosGetVideoByIdResponse:
-      type: object
-      properties:
-        video_url:
-          description: Temporal URL for download the video by using HTTP GET method.
-          type: string
-
     isVideoClappedByUserResponse:
       type: object
       properties:
         clapped:
-          description: is video is clapped by user returns True. False otherwise.
+          description: if video was clapped by user returns True. False otherwise.
           type: boolean
 
     isVideoBookmarkedByUserResponse:
       type: object
       properties:
         bookmarked:
-          description: is video is bookmarked by user returns True. False otherwise.
+          description: if video was bookmarked by user returns True. False otherwise.
+          type: boolean
+
+    isVideoSeenByUserResponse:
+      type: object
+      properties:
+        seen:
+          description: if video was seen by user returns True. False otherwise.
           type: boolean
