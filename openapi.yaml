@@ -1263,39 +1263,6 @@ paths:
         - videos
 
   /videos/view/${VideoId}:
-    get:
-      security:
-        - DeviceId: [ ]
-      description: Mark that a video as viewed for an user
-      parameters:
-        - description: Unique Video ID
-          in: path
-          name: VideoId
-          required: true
-          schema:
-            type: string
-      operationId: Mark Video Viewed
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: Ok
-        '209':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: You already marked as viewed this video
-        '204':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: Video not found
-      tags:
-        - videos
     post:
       security:
         - DeviceId: [ ]
@@ -2200,6 +2167,10 @@ components:
         user_seen:
           description: True if user already seen this video. False otherwise
           type: boolean
+        user_seen_score:
+          description: user seen score. A float value from 0.0 to infinite
+          type: number
+          minimum: 0.0
         tags:
           description: Video tags list as a list of strings.
           type: array
@@ -2306,3 +2277,7 @@ components:
         seen:
           description: if video was seen by user returns True. False otherwise.
           type: boolean
+        seen_score:
+          description: user seen score. A float value from 0.0 to infinite
+          type: number
+          minimum: 0.0
