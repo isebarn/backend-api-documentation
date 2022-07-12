@@ -597,7 +597,7 @@ paths:
       tags:
         - user
 
-  /user/unfollow/{UserId}:
+  /user/unfollow/${UserId}:
     get:
       security:
         - DeviceId: [ ]
