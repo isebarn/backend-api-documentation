@@ -1503,12 +1503,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/VideoResponse'
           description: Ok
-        '203':
+        '209':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseMessage'
-          description: You have not access to this video
+          description: You already bookmarked this video
         '204':
           content:
             application/json:
