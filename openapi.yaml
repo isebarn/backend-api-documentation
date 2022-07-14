@@ -1553,7 +1553,7 @@ paths:
       tags:
         - videos
 
-  /videos/bookmarks/delete/${BookmarkId}:
+  /videos/bookmarks/delete/${VideoId}:
     get:
       security:
         - DeviceId: [ ]
