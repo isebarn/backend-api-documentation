@@ -16,6 +16,17 @@ info:
     Interact with Claps API.
 
     Spec can be found at: https://docs.api.claps.ai/openapi.yaml
+    
+    When a user was deactivated or deleted, backend will response with one of those status codes:
+    
+    **User was deleted**:
+    
+    HTTP Response code 451: User doesn't exist
+    
+    **User was deactivated**:
+    
+    HTTP Response code 422: This user is deactivated
+    
 
   license:
     name: Creative Commons Attribution 3.0
@@ -296,6 +307,70 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponsePublicProfile'
+          description: Successful response
+
+      tags:
+        - user
+
+  /user/deactivate:
+    get:
+      description: Deactivate user
+      operationId: DeActivateUser
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+
+      tags:
+        - user
+
+  /user/reactivate:
+    get:
+      description: Reactivate deactivated user
+      operationId: ReActivateUser
+      parameters:
+        - description: Device ID
+          in: header
+          name: DeviceId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Successful response
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: User not found
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
+          description: Device-Id header missing
+
+      tags:
+        - user
+
+  /user/delete:
+    get:
+      description: Delete User
+      operationId: DeleteUser
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMessage'
           description: Successful response
 
       tags:
