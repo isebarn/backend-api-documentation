@@ -1733,28 +1733,6 @@ paths:
       tags:
         - videos
 
-  /videos/delete/all:
-    get:
-      security:
-        - DeviceId: [ ]
-      description: Deletes all database videos. ONLY AN ADMIN CAN DO THIS.
-      operationId: Delete All Videos
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: All videos deleted
-        '203':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseMessage'
-          description: You're not admin
-      tags:
-        - videos
-
   /videos/algorithm/filter-by-interest:
     get:
       security:
