@@ -46,6 +46,130 @@ tags:
   - name: videos
   - name: re
     description: recommendation engine
+  - name: slides
+    description: |
+      Manage Slides.
+
+      All endpoints to `CRUD` any resources
+
+      **Note** By default the server does **not** return referenced (nested) documents
+
+      ## How to return referenced (nested) documents: Example
+      Objects of type `action` the following
+
+      ```
+      {
+        "id": "some_object_id",
+        "timestamp": 0
+        "structure": "some_object_id"
+      }
+      ```
+
+      running
+      ```GET v1/slides/models/action``` will return a list of all actions
+      and returns a list of objects similar to
+
+      ```
+      {
+        "id": "62e934de4aaf707b58bbd9cc",
+        "structure": {
+          "id": "62e934dd4aaf707b58bbd9c9"
+        },
+        "timestamp": 0
+      }  
+      ```    
+
+
+      running
+      ```GET v1/slides/models/action?$include=structure``` will return a list of all actions
+      and dereferencing all the structure objects, returning something like
+
+      ```
+      {
+        "id": "62e934de4aaf707b58bbd9cc",
+        "structure": {
+          "id": "62e934dd4aaf707b58bbd9c9",
+          "name": "Slide 1",
+          "title": "Welcome"
+        },
+        "timestamp": 0
+      }      
+      ```
+
+
+      ## How to filter documents
+
+      ### Filtering documents w.r.t a property
+      ``` GET v1/slides/models/action?timestamp=5000 ```
+      
+      ### Filtering documents w.r.t a nested property
+      ``` GET v1/slides/models/action?structure__title=Welcome ```
+
+      ## How to limit results
+      ``` GET v1/slides/models/action?$limit=10 ```
+
+      ## How to skip results
+      ``` GET v1/slides/models/action?$skip=10 ```
+
+      ## How to paginate
+      ``` GET v1/slides/models/action?$skip=10&limit=10 ```
+
+      # How to upload an image to a structure that supports images
+      For example `structure_1`
+
+      ```
+      POST v1/models/structure_1
+      {
+          "name": "Slide 1",
+          "title": "Welcome"  
+      }     
+      ```
+      returns
+      ```
+      {
+        "id": "some_object_id"
+        "name": "string",
+        "image": "image_object_id", <- you need this
+      }      
+      ```
+
+      ```
+      POST v1/gcp/images/<image_object_id>
+      data=binary_image
+      ```
+
+      Then you can call
+      `GET v1/gcp/images/<image_object_id>`
+      Which will redirect to the gcp image object
+
+      # How to upload a video for an slides object
+      ```
+      POST v1/models/slide
+      {
+          "colors": { ... }
+          .
+          .
+      }     
+      ```
+      returns
+      ```
+      {
+        "id": "some_object_id"
+        "colors": {},
+        "vode": "video_object_id", <- you need this
+      }      
+      ```
+
+      ```
+      POST v1/gcp/videos/<video_object_id>
+      data=binary_video
+      ```
+
+      Then you can call
+      `GET v1/gcp/videos/<video_object_id>`
+      Which will redirect to the gcp video object
+
+
 paths:
   /health-check:
     get:
@@ -1665,7 +1789,6 @@ paths:
       tags:
         - videos
 
-
   /videos/user/${UserID}:
     get:
       security:
@@ -1783,6 +1906,1220 @@ paths:
         - videos
         - re
 
+  /slides/models/action:
+    get:
+      tags:
+      - slides
+      operationId: action
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/action'
+    put:
+      tags:
+      - slides
+      operationId: action
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/action'
+    post:
+      tags:
+      - slides
+      operationId: action
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/action'
+    patch:
+      tags:
+      - slides
+      operationId: action
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/action'
+  
+  /slides/models/action/{action_id}:
+    get:
+      tags:
+      - slides
+      operationId: action/{action_id}
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/action'
+    put:
+      tags:
+      - slides
+      operationId: action/{action_id}
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/action'
+    delete:
+      tags:
+      - slides
+      operationId: action/{action_id}
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: action/{action_id}
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/action'
+  
+  /slides/models/slides:
+    get:
+      tags:
+      - slides
+      operationId: slides
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/slides'
+    put:
+      tags:
+      - slides
+      operationId: slides
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slides'
+    post:
+      tags:
+      - slides
+      operationId: slides
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slides'
+    patch:
+      tags:
+      - slides
+      operationId: slides
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slides'
+  
+  /slides/models/slides/{slides_id}:
+    get:
+      tags:
+      - slides
+      operationId: slides/{slides_id}
+      parameters:
+      - name: slides_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slides'
+    put:
+      tags:
+      - slides
+      operationId: slides/{slides_id}
+      parameters:
+      - name: slides_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slides'
+    delete:
+      tags:
+      - slides
+      operationId: slides/{slides_id}
+      parameters:
+      - name: slides_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: slides/{slides_id}
+      parameters:
+      - name: slides_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slides'
+  
+  /slides/models/structure:
+    get:
+      tags:
+      - slides
+      operationId: structure
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/structure'
+    put:
+      tags:
+      - slides
+      operationId: structure
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure'
+    post:
+      tags:
+      - slides
+      operationId: structure
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure'
+    patch:
+      tags:
+      - slides
+      operationId: structure
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure'
+  
+  /slides/models/structure/{structure_id}:
+    get:
+      tags:
+      - slides
+      operationId: structure/{structure_id}
+      parameters:
+      - name: structure_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure'
+    put:
+      tags:
+      - slides
+      operationId: structure/{structure_id}
+      parameters:
+      - name: structure_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure'
+    delete:
+      tags:
+      - slides
+      operationId: structure/{structure_id}
+      parameters:
+      - name: structure_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: structure/{structure_id}
+      parameters:
+      - name: structure_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure'
+  
+  /slides/models/structure_1:
+    get:
+      tags:
+      - slides
+      operationId: structure1
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/structure_1'
+    put:
+      tags:
+      - slides
+      operationId: structure1
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_1'
+    post:
+      tags:
+      - slides
+      operationId: structure1
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_1'
+    patch:
+      tags:
+      - slides
+      operationId: structure1
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_1'
+  
+  /slides/models/structure_1/{structure_1_id}:
+    get:
+      tags:
+      - slides
+      operationId: structure1/{structure_1_id}
+      parameters:
+      - name: structure_1_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_1'
+    put:
+      tags:
+      - slides
+      operationId: structure1/{structure_1_id}
+      parameters:
+      - name: structure_1_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_1'
+    delete:
+      tags:
+      - slides
+      operationId: structure1/{structure_1_id}
+      parameters:
+      - name: structure_1_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: structure1/{structure_1_id}
+      parameters:
+      - name: structure_1_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_1'
+  
+  /slides/models/structure_2:
+    get:
+      tags:
+      - slides
+      operationId: structure2
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/structure_2'
+    put:
+      tags:
+      - slides
+      operationId: structure2
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_2'
+    post:
+      tags:
+      - slides
+      operationId: structure2
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_2'
+    patch:
+      tags:
+      - slides
+      operationId: structure2
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_2'
+  
+  /slides/models/structure_2/{structure_2_id}:
+    get:
+      tags:
+      - slides
+      operationId: structure2/{structure_2_id}
+      parameters:
+      - name: structure_2_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_2'
+    put:
+      tags:
+      - slides
+      operationId: structure2/{structure_2_id}
+      parameters:
+      - name: structure_2_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_2'
+    delete:
+      tags:
+      - slides
+      operationId: structure2/{structure_2_id}
+      parameters:
+      - name: structure_2_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: structure2/{structure_2_id}
+      parameters:
+      - name: structure_2_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_2'
+  
+  /slides/models/structure_3:
+    get:
+      tags:
+      - slides
+      operationId: structure3
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/structure_3'
+    put:
+      tags:
+      - slides
+      operationId: structure3
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_3'
+    post:
+      tags:
+      - slides
+      operationId: structure3
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_3'
+    patch:
+      tags:
+      - slides
+      operationId: structure3
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_3'
+  
+  /slides/models/structure_3/{structure_3_id}:
+    get:
+      tags:
+      - slides
+      operationId: structure3/{structure_3_id}
+      parameters:
+      - name: structure_3_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_3'
+    put:
+      tags:
+      - slides
+      operationId: structure3/{structure_3_id}
+      parameters:
+      - name: structure_3_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_3'
+    delete:
+      tags:
+      - slides
+      operationId: structure3/{structure_3_id}
+      parameters:
+      - name: structure_3_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: structure3/{structure_3_id}
+      parameters:
+      - name: structure_3_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/structure_3'
+  
+  /slides/models/template:
+    get:
+      tags:
+      - slides
+      operationId: template
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/template'
+    put:
+      tags:
+      - slides
+      operationId: template
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/template'
+    post:
+      tags:
+      - slides
+      operationId: template
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/template'
+    patch:
+      tags:
+      - slides
+      operationId: template
+      parameters:
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/template'
+  
+  /slides/models/template/{template_id}:
+    get:
+      tags:
+      - slides
+      operationId: template/{template_id}
+      parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/template'
+    put:
+      tags:
+      - slides
+      operationId: template/{template_id}
+      parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/template'
+    delete:
+      tags:
+      - slides
+      operationId: template/{template_id}
+      parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    patch:
+      tags:
+      - slides
+      operationId: template/{template_id}
+      parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: X-Fields
+        in: header
+        description: An optional fields mask
+        schema:
+          type: string
+          format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/template'
+
+  /gcp/images/{image_id}:
+    get:
+      tags:
+      - slides
+      operationId: image/{image_id}
+      parameters:
+      - name: image_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    put:
+      tags:
+      - slides
+      operationId: image/{image_id}
+      parameters:
+      - name: image_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    post:
+      tags:
+      - slides
+      operationId: image/{image_id}
+      parameters:
+      - name: image_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+
+  /gcp/videos/{video_id}:
+    get:
+      tags:
+      - slides
+      operationId: video/{video_id}
+      parameters:
+      - name: video_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    put:
+      tags:
+      - slides
+      operationId: video/{video_id}
+      parameters:
+      - name: video_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
+    post:
+      tags:
+      - slides
+      operationId: video/{video_id}
+      parameters:
+      - name: video_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content: {}
 
 components:
   securitySchemes:
@@ -2392,3 +3729,122 @@ components:
           description: user seen score. A float value from 0.0 to infinite
           type: number
           minimum: 0.0
+
+    structure:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        id:
+          type: string
+    
+    structure_1:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        image:
+          type: string
+        subtitle:
+          type: string
+        id:
+          type: string
+    
+    structure_2:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        bullet1:
+          type: string
+        bullet2:
+          type: string
+        bullet3:
+          type: string
+        id:
+          type: string
+    
+    structure_3:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+    
+    template:
+      type: object
+      properties:
+        version:
+          type: string
+        id:
+          type: string
+        colors:
+          $ref: '#/components/schemas/colors'
+        typo:
+          $ref: '#/components/schemas/typo'
+        structure:
+          type: array
+          items:
+            $ref: '#/components/schemas/structure'
+    
+    colors:
+      type: object
+      properties:
+        background:
+          type: string
+        graphics:
+          type: string
+        text_primary:
+          type: string
+        text_secondary:
+          type: string
+        id:
+          type: string
+    
+    typo:
+      type: object
+      properties:
+        font_family:
+          type: string
+        id:
+          type: string
+    
+    action:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+        id:
+          type: string
+        structure:
+          $ref: '#/components/schemas/structure'
+    
+    slides:
+      type: object
+      properties:
+        version:
+          type: string
+        video:
+          type: string
+        id:
+          type: string
+        colors:
+          $ref: '#/components/schemas/colors'
+        typo:
+          $ref: '#/components/schemas/typo'
+        action:
+          type: array
+          items:
+            $ref: '#/components/schemas/action'
+
